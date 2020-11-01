@@ -8,6 +8,7 @@ const dbConnection = async () => {
     useNewUrlParser: true, 
     useUnifiedTopology: true,
     useCreateIndex:true,
+    useFindAndModify: false,
     });
 
     console.log(`Conneccion a BD exitosa`);
@@ -16,7 +17,6 @@ const dbConnection = async () => {
   }
 }
  
-
 module.exports = {
   dbConnection
 }
