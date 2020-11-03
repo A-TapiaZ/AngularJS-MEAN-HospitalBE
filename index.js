@@ -19,6 +19,8 @@ app.use('/api/v1/usuarios', require('./routes/usuario.routes'));
 app.use('/api/v1/login', require('./routes/auth.routes'));
 app.use('/api/v1/hospital', require('./routes/hospital.routes'));
 app.use('/api/v1/medico', require('./routes/medicos.routes'));
+app.use('/api/v1/busqueda', require('./routes/busqueda.routes'));
+app.use('/api/v1/upload', require('./routes/upload.routes'));
 
 app.listen(process.env.PORT, () => {
   console.log(`Servidor en linea puerto: ${process.env.PORT}`);
