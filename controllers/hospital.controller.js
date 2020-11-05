@@ -66,8 +66,87 @@ const newHospital= async (req, res=response) => {
   }
 }
 
+const updateHospital= async (req, res=response) => {
+  
+
+  const id= req.params.id;
+  const uid =req.uid;
+  const {nombre} = req.body;
+
+  try {
+
+    // Busca entre los registros que el correo no exista
+    const existeHospitalID= await Hospital.findById(id);
+
+    if (!existeHospitalID) {
+      return res.status(404).json({
+        ok:false,
+        msg:'Hospital no encontrado'
+      })
+    }
+
+    const cambiosHospital = {
+      ...req.body,
+      usuario:uid,
+    }
+
+    const hospitalDB= await Hospital.findByIdAndUpdate(id,cambiosHospital,{new:true});
+
+    res.json({
+      ok:true,
+      msg:'Hospital actualizado',
+      hospital:hospitalDB,
+    })
+
+  } catch (err) {
+
+    console.log(err);
+    res.status(500).json({
+      ok:false,
+      msg: 'Error inesperado ...'
+    });
+  }
+}
+
+const deleteHospital= async (req, res=response) => {
+  
+
+  const id= req.params.id;
+  try {
+
+    // Busca entre los registros que el correo no exista
+    const existeHospitalID= await Hospital.findById(id);
+
+    if (!existeHospitalID) {
+      return res.status(404).json({
+        ok:false,
+        msg:'Hospital no encontrado'
+      })
+    }
+
+    // NO SE ACONSEJA ELIMINAR REGISTROS DE LA BASE DE DATOS, LO MEJOR ES CREAR UNA PROPIEDAD COMO 'ESTADO'  PARA SABER SI SE ENCUENTRA ACTIVO O NO, Y SOLO CAMBIARLO SIN ELIMINARLO DE LOS REGISTROS.
+    const eliminatedHospital = await Hospital.findByIdAndDelete(id);
+
+
+    res.json({
+      ok:true,
+      msg:'Hospital eliminado',
+      hospital:eliminatedHospital,
+    })
+
+  } catch (err) {
+
+    console.log(err);
+    res.status(500).json({
+      ok:false,
+      msg: 'Error inesperado ...'
+    });
+  }
+}
 
 module.exports={
   getHospitales,
-  newHospital
+  newHospital,
+  updateHospital,
+  deleteHospital,
 }

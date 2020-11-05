@@ -1,7 +1,6 @@
 const { response } = require("express");
 const Medico = require("../models/medico.model");
-const bcrypt = require('bcryptjs');
-const { generarJWT } = require("../helpers/JWT");
+const Hospital = require("../models/hospital.model");
 
 
 /* IMPLEMENTACIONES */
@@ -70,46 +69,47 @@ const newMedico= async (req, res=response) => {
   }
 }
 
-/*
 const updateMedico= async (req, res=response) => {
   
-  const uid = req.params.id;
+  const {hospital:hospitalID}=req.body;
+  const {id}= req.params;
+  const uid =req.uid;
 
   try {
 
-    // Busca entre los registros que el Medico exista
-    const MedicoDB= await Medico.findById(uid);
-    
-    if (!MedicoDB) {
+    // Busca entre los registros que el id no exista
+    const existeMedicoID= await Medico.findById(id);
+
+    if (!existeMedicoID) {
       return res.status(404).json({
         ok:false,
-        msg:'El Medico no existe'
+        msg:'Medico no encontrado'
       })
     }
 
-    // Actualizaciones
-    // password, google, email ya no hacen parte de la copia de campos.
-    const {password, google, email, ...campos} = req.body;
+    // Busca entre los registros que el id exista
+    if (hospitalID) { 
+      const existeHospitalID= await Hospital.findById(id);
 
-    if (MedicoDB.email !== email) {
-   
-      // Busca entre los registros que el correo no exista
-      const existeEmail= await Medico.findOne({email});
-      
-      if (existeEmail) {
-        return res.status(400).json({
+      if (!existeHospitalID) {
+        return res.status(404).json({
           ok:false,
-          msg:'El correo ya esta registrado'
+          msg:'Hospital no encontrado'
         })
       }
     }
 
-    campos.email=email;
-    const MedicoActualizado = await Medico.findByIdAndUpdate(uid, campos, {new:true});
+    const cambiosMedico = {
+      ...req.body,
+      usuario:uid,
+    }
+
+    const medicoDB= await Medico.findByIdAndUpdate(id,cambiosMedico,{new:true});
 
     res.json({
       ok:true,
-      Medico:MedicoActualizado,
+      msg:'Medico actualizado',
+      Medico:medicoDB,
     })
 
   } catch (err) {
@@ -124,25 +124,28 @@ const updateMedico= async (req, res=response) => {
 
 const deleteMedico= async (req, res=response) => {
   
-  const uid = req.params.id;
 
+  const id= req.params.id;
   try {
 
-    // Busca entre los registros que el Medico exista
-    const MedicoDB= await Medico.findById(uid);
-    
-    if (!MedicoDB) {
+    // Busca entre los registros que el id exista
+    const existeMedicoID= await Medico.findById(id);
+
+    if (!existeMedicoID) {
       return res.status(404).json({
         ok:false,
-        msg:'El Medico no existe'
+        msg:'Medico no encontrado'
       })
     }
 
-    const MedicoBorrado = await Medico.findByIdAndDelete(uid)
+    // NO SE ACONSEJA ELIMINAR REGISTROS DE LA BASE DE DATOS, LO MEJOR ES CREAR UNA PROPIEDAD COMO 'ESTADO'  PARA SABER SI SE ENCUENTRA ACTIVO O NO, Y SOLO CAMBIARLO SIN ELIMINARLO DE LOS REGISTROS.
+    const eliminatedMedico = await Medico.findByIdAndDelete(id);
+
 
     res.json({
       ok:true,
-      Medico:MedicoBorrado,
+      msg:'Medico eliminado',
+      hospital:eliminatedMedico,
     })
 
   } catch (err) {
@@ -154,13 +157,12 @@ const deleteMedico= async (req, res=response) => {
     });
   }
 }
-*/
 
 module.exports={
   getMedicos,
   newMedico,
-  // updateMedico,
-  // deleteMedico,
+  updateMedico,
+  deleteMedico,
 }
 
 
