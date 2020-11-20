@@ -15,6 +15,7 @@ app.use(express.json());
 dbConnection();
 
 // Directorio publico
+// esto se hizo con el fin de ejectuar codigo html
 app.use(express.static('public'));
 
 // Routes

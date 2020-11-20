@@ -16,6 +16,7 @@ const login = async (req, res=response) => {
     // Verificar EMAIl
     const usuarioDB = await Usuario.findOne({email});
     console.log(usuarioDB);
+
     if (!usuarioDB) {
       return res.status(404).json({
         ok:false,
@@ -27,7 +28,7 @@ const login = async (req, res=response) => {
     // Verificar CONTRASEÑA
     const validPassword= bcrypt.compareSync(password, usuarioDB.password);
 
-    if (validPassword) {
+    if (!validPassword) {
       return res.status(400).json({
         ok:false,
         msg:'Un mensaje que no le de pistas por si me atacan, para este caso solo por estar en desarrollo la contraseña no es valida'
@@ -40,7 +41,9 @@ const login = async (req, res=response) => {
     res.status(200).json({
       ok:true,
       token,
-      msg:'Estamos en login' 
+      msg:'Estamos en login',
+      usuario:usuarioDB,
+      id:usuarioDB._id,
     })
 
   } catch (error) {
@@ -114,10 +117,13 @@ const renewToken = async (req, res=response) => {
     // Renovar el token
     const token = await generarJWT(uid);
 
+    const usuarioDB = await Usuario.findById(uid);
+
     res.status(200).json({
       ok:true,
       token,
       uid,
+      usuario:usuarioDB,
       msg:'Token renovado' 
     })
 
